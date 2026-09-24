@@ -1,0 +1,79 @@
+export function parseNum(value) {
+  const parsed = parseFloat(String(value).replace(/[^0-9.]/g, ''));
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+export function formatUsd(value) {
+  return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export function formatInr(value) {
+  return '₹' + value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export const PARTNER_DISCOUNT_RATE = 0.1;
+export const GST_RATE = 0.18;
+export const ESCROW_FEE = 50;
+
+export function cartTotals(items, addons = {}) {
+  const subtotal = items.reduce((acc, item) => acc + parseNum(item.price), 0);
+  const addonsCost = (addons.express ? 250 : 0) + (addons.rawDLog ? 128 : 0) + (addons.rtmp ? 490 : 0);
+  const totalBase = subtotal + addonsCost;
+  const discount = totalBase * PARTNER_DISCOUNT_RATE;
+  const gstTax = (totalBase - discount) * GST_RATE;
+  const grandTotal = Math.max(0, totalBase - discount + gstTax + ESCROW_FEE);
+  return { subtotal, addonsCost, totalBase, discount, gstTax, escrow: ESCROW_FEE, grandTotal };
+}
+
+export const HOME_BASE_RATES = {
+  visual: [2400, 5800, 14000],
+  drone: [1800, 4200, 9500],
+  commercial: [3200, 7500, 18500],
+  saas: [850, 2200, 6800],
+};
+
+export const HOME_TIERS = ['Standard Tier', 'Enterprise Expansion', 'Full Autonomous Fleet'];
+
+export function homeCostFor(capability, scaleIndex) {
+  const rates = HOME_BASE_RATES[capability] || HOME_BASE_RATES.visual;
+  return rates[scaleIndex - 1] || rates[0];
+}
+
+export const DRONE_TIER_PRICING = {
+  ixm: { base: 1800, name: 'Standard Tier' },
+  l2: { base: 4200, name: 'Enterprise Expansion' },
+  x9: { base: 9500, name: 'Full Autonomous Fleet' },
+};
+
+export function droneTelemetry(altitude, overlap) {
+  const targetGsd = (altitude * 0.0112).toFixed(1);
+  const duration = Math.round(overlap * 0.48);
+  const pointCount = ((150 - altitude) * 0.42).toFixed(1);
+  return { targetGsd, duration, pointCount };
+}
+
+export function gstTotals(item1Qty, item1Rate, item2Qty, item2Rate, isInterState) {
+  const tot1 = Math.max(0, item1Qty) * Math.max(0, item1Rate);
+  const tot2 = Math.max(0, item2Qty) * Math.max(0, item2Rate);
+  const subtotal = tot1 + tot2;
+  const cgst = isInterState ? 0 : subtotal * 0.09;
+  const sgst = isInterState ? 0 : subtotal * 0.09;
+  const igst = isInterState ? subtotal * 0.18 : 0;
+  const totalPayable = subtotal + cgst + sgst + igst;
+  return { tot1, tot2, subtotal, cgst, sgst, igst, totalPayable };
+}
+
+export function generateIrnHash() {
+  return Array.from({ length: 48 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+}
+
+export function crsTotals(basePrice, surgePercent, isStopSell, inventory) {
+  const calculatedPrice = Math.round(basePrice * (1 + surgePercent / 100));
+  const activeInv = isStopSell ? 0 : inventory;
+  const priceDisplay = isStopSell ? 'STOP SELL' : '$' + calculatedPrice;
+  return { calculatedPrice, activeInv, priceDisplay };
+}
+
+export function bookingReference() {
+  return 'I360-' + Math.floor(1000 + Math.random() * 9000);
+}

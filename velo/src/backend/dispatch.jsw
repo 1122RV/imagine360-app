@@ -1,0 +1,51 @@
+import wixData from 'wix-data';
+import { bookingReference } from 'backend/pricing.jsw';
+
+export async function createBooking(booking) {
+  const record = {
+    target_date: booking.target_date,
+    slot: booking.slot,
+    site: booking.site,
+    items: booking.items || [],
+    total: booking.total,
+    status: 'confirmed',
+    created_at: new Date().toISOString(),
+  };
+  await wixData.insert('bookings', record);
+  return bookingReference();
+}
+
+export async function createInquiry(inquiry) {
+  const record = {
+    first_name: inquiry.firstName,
+    last_name: inquiry.lastName,
+    email: inquiry.email,
+    phone: inquiry.phone,
+    company: inquiry.company,
+    vertical: inquiry.vertical,
+    budget: inquiry.budget,
+    message: inquiry.message,
+    status: 'open',
+    created_at: new Date().toISOString(),
+  };
+  await wixData.insert('inquiries', record);
+}
+
+export async function listServices() {
+  return wixData.query('services').find();
+}
+
+export async function listMissions() {
+  const results = await wixData.query('missions').find();
+  return results.items;
+}
+
+export async function listAssets() {
+  const results = await wixData.query('assets').find();
+  return results.items;
+}
+
+export async function listGstClients() {
+  const results = await wixData.query('gst_clients').find();
+  return results.items;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Imagine360tours Enterprise",
+  "description": "Autonomous industrial drone operations, reality capture photogrammetry, cinematic 8K production, GST billing SaaS, and hospitality CRS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
